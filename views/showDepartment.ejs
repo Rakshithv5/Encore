@@ -1,0 +1,81 @@
+<%- include('partials/header') %>
+
+<style>
+
+body {
+    background-color: #143D59;
+  color:black;
+  font: 14px/24px "Open Sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", Sans-Serif;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+th,
+td {
+  padding: 6px 15px;
+}
+th {
+  background: #42444e;
+  color: #fff;
+  text-align: center;
+}
+tr:first-child th:first-child {
+  border-top-left-radius: 6px;
+}
+tr:first-child th:last-child {
+  border-top-right-radius: 6px;
+}
+td {
+  border-right: 1px solid #c6c9cc;
+  border-bottom: 1px solid #c6c9cc;
+}
+td:first-child {
+  border-left: 1px solid #c6c9cc;
+}
+tr:nth-child(even) td {
+  background: #eaeaed;
+}
+tr:last-child td:first-child {
+  border-bottom-left-radius: 6px;
+}
+tr:last-child td:last-child {
+  border-bottom-right-radius: 6px;
+}
+
+
+</style>
+
+<h1 style="color: white; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">ENCORE</h1>
+
+<div class="container">
+<table style="background:  #F4B41A;font-size:20px;">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Category</th>
+        <th>HeadId</th>
+        <th>Delete</th>
+      
+    </thead>
+    <tbody>
+      <tr>
+        <% for(var i=0; i < dropdown.length; i++) { %>
+            <tr>
+            <td><%= dropdown[i].id%></td>
+            <td><%= dropdown[i].dname%></td>
+            <td><%= dropdown[i].price%></td>
+            <td><%= dropdown[i].category%></td>
+            <td><%= dropdown[i].headId%></td>
+        <td><a type="button" href="/department/delete/<%=dropdown[i].id%>">Delete</a></td>
+        </tr>
+         <% } %>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<%- include('partials/footer') %>

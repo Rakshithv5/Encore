@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+<!-- <body style="background:black;"> -->
+<style>
+    body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* min-height: 100vh; } */
+    }
+</style>
+
+<body>
+<div class="add" style="background:black;">
+<div class="card mb-3" style="background:black;">
+    <img class="card-img-top" src="https://i1.wp.com/feminisminindia.com/wp-content/uploads/2018/01/Sitara-Devi.png?fit=700%2C415&ssl=1" alt="Card image cap">
+    <div class="card-body">
+      <h1 class="card-title addons" style="color:white;" >Cultural</h1>
+      <p class="card-text addoText" style="color:white;">Jaaz,Bharatanatyam,Yakshagana,Singing,Drama,Tabla,Voilin</p>
+      <a type="button" href="/addPayment/cultural" class="btn btn-primary btn-lg btn-block">Add</a>
+    </div>
+  </div>
+  <div class="card mb-3" style="background:black;">
+    <img class="card-img-top" style="width:700px;height:415px" src="https://www.bls.gov/spotlight/2017/sports-and-exercise/images/cover_image.jpg" alt="Card image cap">
+    
+    <div class="card-body">
+      <h1 class="card-title addons" style="color:white;">Sports</h1>
+      <p class="card-text addoText" style="color:white;">Badminton,Chess,Football,Cricket,Tennis,Swimming,Yoga</p>
+      <a type="button" href="/addPayment/sports" class="btn btn-primary btn-lg btn-block">Add</a>
+    </div>
+  </div>
+</div>
+</body>
+  
+
+
+<%- include('partials/footer') %>
