@@ -112,7 +112,8 @@ var studentroutes= require("./routes/students")
 var departmentroutes=require('./routes/department')
 var mentorroutes= require("./routes/mentors")
 var paymentroutes= require("./routes/payment")
-var commentsroutes= require("./routes/comments")
+var commentsroutes= require("./routes/comments");
+const { log } = require("console");
 
 app.use("/student",studentroutes);
 app.use("/department",departmentroutes);
@@ -120,25 +121,16 @@ app.use("/mentor",mentorroutes);
 app.use("/payment",paymentroutes);
 app.use("/comments",commentsroutes);
 
-
-
-
-
-
 app.use(passport.initialize());
 app.use(passport.session()); 
-
-
-
 
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated())
     {
         return next();
+    }else{
+        res.redirect("/open")
     }
-    console.log(req.isAuthenticated());
-    
-	res.redirect('/open');
 }
 
 app.get('/',(req,res)=>{
@@ -158,39 +150,51 @@ app.get('/open',(req,res)=>{
         res.redirect('/login')
 })
 
+
 app.post('/open', passport.authenticate('azuread-openidconnect', {
     failureRedirect: '/login'
   }), (req, res) => {
-    res.redirect('/open');
+    
+//    res.redirect('/extra');
+
+
+
+ res.redirect("/open")
   });
 
 
-app.get('/add',(req,res)=>{
+app.get('/add',isLoggedIn,(req,res)=>{
     res.render("addStudent")
 })
 
-app.get('/sports',(req,res)=>{
+app.get('/sports',isLoggedIn,(req,res)=>{
     res.render("sports")
 })
 
-app.get('/cultural',(req,res)=>{
+app.get('/cultural',isLoggedIn,(req,res)=>{
     res.render("cultural")
 })
 
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect('/open');
+}
+
 app.get('/addMentor',isLoggedIn,(req,res)=>{
-        res.render("addMentor")
-    // else res.redirect('/login')
+    res.render("addMentor");
 })
 
 app.get('/addDepartment',isLoggedIn,(req,res)=>{
     res.render("addDepartment")
 })
 
-app.get('/showStudent',(req,res)=>{
+app.get('/showStudent',isLoggedIn,(req,res)=>{
     res.render("showStudent")
 })
 
-app.get('/showDepartment',(req,res)=>{
+app.get('/showDepartment',isLoggedIn,(req,res)=>{
     res.render("showDepartment")
 })
 
@@ -198,15 +202,15 @@ app.get('/sample',(req,res)=>{
     res.render("sample")
 })
 
-app.get('/showMentors',(req,res)=>{
+app.get('/showMentors',isLoggedIn,(req,res)=>{
     res.render("showMentor")
 })
 
-app.get('/error',(req,res)=>{
+app.get('/error',isLoggedIn,(req,res)=>{
     res.render("error")
 })
 
-app.get('/addPayment/:category',(req,res)=>{
+app.get('/addPayment/:category',isLoggedIn,(req,res)=>{
     var category=req.params.category;
     department.findAll({
         where: {category : category }
@@ -219,7 +223,7 @@ app.get('/addPayment/:category',(req,res)=>{
 })
 
 
-app.get('/addComment',(req,res)=>{
+app.get('/addComment',isLoggedIn,(req,res)=>{
     res.render('addComment')
 })
 
@@ -227,11 +231,11 @@ app.get('/error_mentor',(req,res)=>{
     res.render('error_mentor')
 })
 
-app.get('/showComments',(req,res)=>{
+app.get('/showComments',isLoggedIn,(req,res)=>{
     res.render('showComments')
 })
 
-app.get('/searchStudent',(req,res)=>{
+app.get('/searchStudent',isLoggedIn,(req,res)=>{
     res.render('searchStudent')
 })
 
