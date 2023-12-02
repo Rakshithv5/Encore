@@ -1,6 +1,7 @@
 const mysql=require("mysql");
 const express=require("express");
 const bodyParser=require("body-parser");
+const OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
 var session  = require('express-session');
 var passport = require('passport');
 var flash    = require('connect-flash');
@@ -9,14 +10,50 @@ var LocalStrategy   = require('passport-local').Strategy;
 var bcrypt = require('bcrypt-nodejs');
 const morgan = require('morgan')
 
-
+require('dotenv').config();
 
 var app=express();
 app.use(bodyParser.json());
 
 app.use(morgan())
 
+app.use(session({
+    secret: 'secret123',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+ } ));
 
+ let tenentId = process.env.TENENT_ID;
+
+passport.use(new OIDCStrategy(
+    { 
+        identityMetadata: `https://login.microsoftonline.com/${tenentId}/v2.0/.well-known/openid-configuration`,
+        clientID: process.env.CLIENT_ID,  
+        responseType: 'code id_token', 
+        responseMode: 'form_post',  
+        redirectUrl: process.env.REDIRECT_URL,  
+        allowHttpForRedirectUrl: true,  
+        clientSecret: process.env.CLIENT_SECRET,  
+        validateIssuer: false,
+        passReqToCallback: false, 
+    },
+    (iss, sub, profile, accessToken, refreshToken, done) => 
+    {   
+         return done(null, profile); 
+    }));
+
+    
+    passport.serializeUser((user, done) => 
+    {   
+        done(null, user); 
+    }); 
+    
+    passport.deserializeUser((obj, done) => 
+    {   
+        done(null, obj); 
+    });
+    
 app.use(express.static(__dirname + "/public"));
 
 app.set('view engine', 'ejs');
@@ -83,8 +120,18 @@ app.use("/mentor",mentorroutes);
 app.use("/payment",paymentroutes);
 app.use("/comments",commentsroutes);
 
-function isLoggedIn(req, res, next) {
 
+
+
+
+
+app.use(passport.initialize());
+app.use(passport.session()); 
+
+
+
+
+function isLoggedIn(req, res, next) {
     if (req.isAuthenticated())
     {
         return next();
@@ -94,20 +141,29 @@ function isLoggedIn(req, res, next) {
 	res.redirect('/open');
 }
 
-
-
-
 app.get('/',(req,res)=>{
     res.render("home")
 })
 
-app.get('/login',(req,res)=>{
-    res.render("login")
-})
+
+app.get('/login', passport.authenticate('azuread-openidconnect', { failureRedirect: '/' }), (req, res) => {
+    res.render('open');
+});
 
 app.get('/open',(req,res)=>{
-    res.render("open")
+    if (req.isAuthenticated()) {
+        res.render("open")
+    }
+    else
+        res.redirect('/login')
 })
+
+app.post('/open', passport.authenticate('azuread-openidconnect', {
+    failureRedirect: '/login'
+  }), (req, res) => {
+    res.redirect('/open');
+  });
+
 
 app.get('/add',(req,res)=>{
     res.render("addStudent")
@@ -180,6 +236,7 @@ app.get('/searchStudent',(req,res)=>{
 })
 
 
+ 
 
 var connection = mysql.createConnection({
     host:'localhost',
@@ -188,101 +245,18 @@ var connection = mysql.createConnection({
     database:'db_users'
 });
 
-app.use(session({
-	secret: 'secret123',
-	resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
 
- } )); 
-app.use(passport.initialize());
-app.use(passport.session()); 
+
+
 app.use(flash());
 
 connection.connect((err)=>{
     if(!err)console.log("Connected");
 })
 
-passport.serializeUser(function(user, done) {
-    done(null, user.id);
-    // console.log(user);
-});
-
-passport.deserializeUser(function(id, done) {
-    
-    connection.query("SELECT * FROM tbl_users WHERE id = ? ",[id], function(err, rows){
-        done(err, rows[0]);
-    });
-
-});
-
-passport.use(
-    'local-signup',
-    new LocalStrategy({
-        username : 'username',
-        password: 'password',
-        passReqToCallback : true 
-    },
-    function(req, username, password, done) {
-       
-       
-        connection.query("SELECT * FROM tbl_users WHERE username = ?",[username], function(err, rows) {
-            if (err)
-                return done(err);
-            if (rows.length) {
-                return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
-            } else {
-               
-                var newUserMysql = {
-                    username: username,
-                    password: bcrypt.hashSync(password, null, null)  
-                };
-
-                var insertQuery = "INSERT INTO tbl_users ( username, password ) values (?,?)";
-                
-                connection.query(insertQuery,[newUserMysql.username, newUserMysql.password],function(err, rows) {
-                    newUserMysql.id = rows.insertId;
-                    // console.log(newUserMyss
-                    return done(null,newUserMysql);
-                });
-              
-            }
-        });
-       
-    })
-);
-
-passport.use(
-    'local-login',
-    new LocalStrategy({
-       
-        username: 'username',
-        password: 'password',
-        passReqToCallback : true 
-    },
-    function(req, username, password, done) { 
-       
-        connection.query("SELECT * FROM tbl_users WHERE username = ?",[username], function(err, rows){
-            if (err)
-                return done(err);
-            if (!rows.length) {
-                return done(null, false, req.flash('loginMessage', 'No user found.')); 
-            }
-
-            
-            if (!bcrypt.compareSync(password, rows[0].password))
-                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
-
-           
-            return done(null, rows[0]);
-        });
-       
-    })
-);
 
 app.get('/login', function(req, res) {
 
-    
     res.render('login.ejs', { message: req.flash('loginMessage') });
 });
 
@@ -305,7 +279,6 @@ res.redirect('/');
 
 
 app.get('/signup', function(req, res) {
-    
     res.render('signup.ejs', { message: req.flash('signupMessage') });
 });
 
