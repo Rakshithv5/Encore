@@ -1,43 +1,88 @@
-const Sequelize = require('sequelize');
+// const Sequelize = require('sequelize');
+// const db = require('../config/database');
+
+
+// const Mentor = db.define('mentor', {
+//   id:{
+//     type: Sequelize.INTEGER,
+//     primaryKey: true,
+//     allowNull: false,
+//     autoIncrement: true,
+//   },
+//   mname: {
+//     type: Sequelize.STRING
+//   },
+//   mphone: {
+//     type: Sequelize.STRING
+//   },
+//   address:{
+//     type: Sequelize.STRING
+//   },
+//   age: {
+//     type: Sequelize.INTEGER
+//   },
+//   gender: {
+//     type: Sequelize.STRING
+//   },
+//   contact_email: {
+//     type: Sequelize.STRING,
+//     isEmail:true
+//   }, 
+//   createdAt: {
+//     type: Sequelize.DATE,
+//     defaultValue: Sequelize.literal('NOW()')
+//   },
+//   updatedAt: {
+//     type: Sequelize.DATE,
+//     defaultValue: Sequelize.literal('NOW()')
+//   }
+// },{
+//   timestamp:false
+// });
+
+// module.exports = Mentor;
+
+const { Sequelize, DataTypes } = require('sequelize');
 const db = require('../config/database');
 
-
 const Mentor = db.define('mentor', {
-  id:{
-    type: Sequelize.INTEGER,
+  id: {
+    type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
     autoIncrement: true,
   },
   mname: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
   },
   mphone: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
   },
-  address:{
-    type: Sequelize.STRING
+  address: {
+    type: DataTypes.STRING,
   },
   age: {
-    type: Sequelize.INTEGER
+    type: DataTypes.INTEGER,
   },
   gender: {
-    type: Sequelize.STRING
+    type: DataTypes.STRING,
   },
   contact_email: {
-    type: Sequelize.STRING,
-    isEmail:true
-  }, 
+    type: DataTypes.STRING,
+    validate: {
+      isEmail: true,
+    },
+  },
   createdAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()')
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.fn('GETDATE'), 
   },
   updatedAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()')
-  }
-},{
-  timestamp:false
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.fn('GETDATE'), 
+  },
+}, {
+  timestamps: false, 
 });
 
 module.exports = Mentor;

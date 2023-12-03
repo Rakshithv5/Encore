@@ -1,14 +1,14 @@
-const mysql=require("mysql");
-const express=require("express");
-const bodyParser=require("body-parser");
-const OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
-var session  = require('express-session');
-var passport = require('passport');
-var flash    = require('connect-flash');
-var cookieParser = require('cookie-parser');
+const mysql         = require("mysql");
+const express       = require("express");
+const bodyParser    = require("body-parser");
+const OIDCStrategy  = require('passport-azure-ad').OIDCStrategy;
+var session         = require('express-session');
+var passport        = require('passport');
+var flash           = require('connect-flash');
+var cookieParser    = require('cookie-parser');
 var LocalStrategy   = require('passport-local').Strategy;
-var bcrypt = require('bcrypt-nodejs');
-const morgan = require('morgan')
+var bcrypt          = require('bcrypt-nodejs');
+const morgan        = require('morgan')
 
 require('dotenv').config();
 
@@ -62,12 +62,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-var database =require('./config/database')
-const student=  require("./models/student");
-const payment=  require("./models/payment");
-const department=  require("./models/department");
-const mentor=  require("./models/mentor");
-const comments=  require("./models/comments");
+var database        =  require('./config/database')
+const student       =  require("./models/student");
+const payment       =  require("./models/payment");
+const department    =  require("./models/department");
+const mentor        =  require("./models/mentor");
+const comments      =  require("./models/comments");
 
 
 student.hasMany(payment);
@@ -105,7 +105,7 @@ mentor.belongsTo(department);
 
  database.authenticate()
     .then(()=> console.log('Connection has been established successfully.'))
-    .catch((err)=> console.log('Unable to connect to the database:'))
+    .catch((err)=> console.log('Unable to connect to the database:' + err))
   
 
 var studentroutes= require("./routes/students")
@@ -239,8 +239,6 @@ app.get('/searchStudent',isLoggedIn,(req,res)=>{
     res.render('searchStudent')
 })
 
-
- 
 
 var connection = mysql.createConnection({
     host:'localhost',
