@@ -57,6 +57,7 @@ passport.use(new OIDCStrategy(
 app.use(express.static(__dirname + "/public"));
 
 app.set('view engine', 'ejs');
+app.use(express.static('./client/build'));
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -306,4 +307,4 @@ app.get('/logout', function(req, res) {
 
 
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
